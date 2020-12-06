@@ -3,9 +3,10 @@ const bcrypt = require('bcrypt');
 const _ = require('underscore');
 const Usuario = require('../models/usuario');
 const app = express();
+const { verificaToken, verificaAdminRol } = require('../middlewares/autenticacion')
 
 
-app.get('/usuario', function(req, res) {
+app.get('/usuario', [verificaToken], function(req, res) {
 
     let desde = req.query.desde || 0;
     desde = Number(desde);
@@ -36,7 +37,7 @@ app.get('/usuario', function(req, res) {
         });
 })
 
-app.post('/usuario', function(req, res) {
+app.post('/usuario', [verificaToken, verificaAdminRol], function(req, res) {
 
 
     let body = req.body;
@@ -56,8 +57,6 @@ app.post('/usuario', function(req, res) {
             });
         }
 
-        // usuarioDB.password = null;
-
         res.json({
             ok: true,
             usuario: usuarioDB
@@ -67,7 +66,7 @@ app.post('/usuario', function(req, res) {
 
 })
 
-app.put('/usuario/:id', function(req, res) {
+app.put('/usuario/:id', [verificaToken, verificaAdminRol], function(req, res) {
 
     let id = req.params.id;
 
@@ -80,25 +79,17 @@ app.put('/usuario/:id', function(req, res) {
             return res.status(400).json({
                 ok: false,
                 err
-            })
+            });
         }
 
         res.json({
             ok: true,
             usuario: usuarioDB
-        })
-    })
+        });
+    });
+});
 
-    // Usuario.findById((id, usuarioDB) => {
-    //     usuarioDB.save;
-    // })
-
-    // res.json({
-    //     id
-    // })
-})
-
-app.delete('/usuario/:id', function(req, res) {
+app.delete('/usuario/:id', [verificaToken, verificaAdminRol], function(req, res) {
 
     let id = req.params.id;
 
@@ -112,39 +103,16 @@ app.delete('/usuario/:id', function(req, res) {
             return res.status(400).json({
                 ok: false,
                 err
-            })
+            });
         }
 
         res.json({
             ok: true,
             usuario: usuarioDB
-        })
-    })
+        });
+    });
+
+});
 
 
-    // Usuario.findByIdAndRemove(id, (err, usuarioBorrado) => {
-    //     if (err) {
-    //         return res.status(400).json({
-    //             ok: false,
-    //             err
-    //         })
-    //     }
-
-    //     if (!usuarioBorrado) {
-    //         return res.status(400).json({
-    //             ok: false,
-    //             err: {
-    //                 message: 'Usuario no encontrado'
-    //             }
-    //         })
-    //     }
-
-    //     res.json({
-    //         ok: true,
-    //         usuario: usuarioBorrado
-    //     });
-    // });
-})
-
-
-module.exports = app
+module.exports = app;
